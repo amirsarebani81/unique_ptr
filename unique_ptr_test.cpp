@@ -44,7 +44,8 @@ TEST(PrimaryTemplateTest, SwapTest) {
 
 TEST(PrimaryTemplateTest, MoveAssign) {
     unique_ptr<int> u_ptr1(new int);
-    unique_ptr<int> u_ptr2 = std::move(u_ptr1);
+    unique_ptr<int> u_ptr2(new int);
+    u_ptr2 = std::move(u_ptr1);
     ASSERT_EQ(u_ptr1.get(), nullptr);
     ASSERT_NE(u_ptr2.get(), nullptr);
 }
@@ -105,7 +106,8 @@ TEST(SpecializationForArrays, SwapTest) {
 
 TEST(SpecializationForArrays, MoveAssign) {
     unique_ptr<int[]> u_ptr1(new int[10]);
-    unique_ptr<int[]> u_ptr2 = std::move(u_ptr1);
+    unique_ptr<int[]> u_ptr2(new int[10]);
+    u_ptr2 = std::move(u_ptr1);
     ASSERT_EQ(u_ptr1.get(), nullptr);
     ASSERT_NE(u_ptr2.get(), nullptr);
 }

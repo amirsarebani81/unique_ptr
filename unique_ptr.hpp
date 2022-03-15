@@ -42,7 +42,7 @@ template <typename T> class unique_ptr {
     unique_ptr &operator=(const unique_ptr &u_ptr) = delete;
 
     unique_ptr &operator=(unique_ptr &&u_ptr) {
-        pointer = u_ptr.release();
+        reset(u_ptr.release());
         return *this;
     }
 
@@ -93,7 +93,7 @@ template <typename T> class unique_ptr<T[]> {
     unique_ptr &operator=(const unique_ptr &u_ptr) = delete;
 
     unique_ptr &operator=(unique_ptr &&u_ptr) {
-        pointer = u_ptr.release();
+        reset(u_ptr.release());
         return *this;
     }
 
