@@ -15,15 +15,15 @@ template <typename T> class unique_ptr {
     unique_ptr(T *ptr)
         : pointer(ptr) {}
 
+    unique_ptr(const unique_ptr &u_ptr) = delete;
+
     unique_ptr(unique_ptr &&u_ptr)
-        : pointer(u_ptr.pointer) {
-        u_ptr.pointer = nullptr;
-    }
+        : pointer(u_ptr.release()) {}
 
     ~unique_ptr() { delete pointer; }
 
     T *release() {
-        T *tmp = pointer;
+        T *tmp = get();
         pointer = nullptr;
         return tmp;
     }
@@ -35,23 +35,24 @@ template <typename T> class unique_ptr {
 
     void swap(unique_ptr &u_ptr) { std::swap(pointer, u_ptr.pointer); }
 
-    T *get() { return pointer; }
+    T *get() const { return pointer; }
 
-    operator bool() const { return pointer != nullptr; }
+    operator bool() const { return get() != nullptr; }
+
+    unique_ptr &operator=(const unique_ptr &u_ptr) = delete;
 
     unique_ptr &operator=(unique_ptr &&u_ptr) {
-        pointer = u_ptr.pointer;
-        u_ptr.pointer = nullptr;
+        pointer = u_ptr.release();
         return *this;
     }
 
-    bool operator==(const unique_ptr &u_ptr) const { return pointer == u_ptr.pointer; }
+    bool operator==(const unique_ptr &u_ptr) const { return get() == u_ptr.get(); }
 
-    bool operator!=(const unique_ptr &u_ptr) const { return pointer != u_ptr.pointer; }
+    bool operator!=(const unique_ptr &u_ptr) const { return get() != u_ptr.get(); }
 
-    T &operator*() { return *pointer; }
+    T &operator*() { return *get(); }
 
-    T *operator->() { return pointer; }
+    T *operator->() { return get(); }
 };
 
 template <typename T> class unique_ptr<T[]> {
@@ -65,15 +66,15 @@ template <typename T> class unique_ptr<T[]> {
     unique_ptr(T ptr[])
         : pointer(ptr) {}
 
+    unique_ptr(const unique_ptr &u_ptr) = delete;
+
     unique_ptr(unique_ptr &&u_ptr)
-        : pointer(u_ptr.pointer) {
-        u_ptr.pointer = nullptr;
-    }
+        : pointer(u_ptr.release()) {}
 
     ~unique_ptr() { delete[] pointer; }
 
     T *release() {
-        T *tmp = pointer;
+        T *tmp = get();
         pointer = nullptr;
         return tmp;
     }
@@ -85,19 +86,20 @@ template <typename T> class unique_ptr<T[]> {
 
     void swap(unique_ptr &u_ptr) { std::swap(pointer, u_ptr.pointer); }
 
-    T *get() { return pointer; }
+    T *get() const { return pointer; }
 
-    operator bool() const { return pointer != nullptr; }
+    operator bool() const { return get() != nullptr; }
+
+    unique_ptr &operator=(const unique_ptr &u_ptr) = delete;
 
     unique_ptr &operator=(unique_ptr &&u_ptr) {
-        pointer = u_ptr.pointer;
-        u_ptr.pointer = nullptr;
+        pointer = u_ptr.release();
         return *this;
     }
 
-    bool operator==(const unique_ptr &u_ptr) const { return pointer == u_ptr.pointer; }
+    bool operator==(const unique_ptr &u_ptr) const { return get() == u_ptr.get(); }
 
-    bool operator!=(const unique_ptr &u_ptr) const { return pointer != u_ptr.pointer; }
+    bool operator!=(const unique_ptr &u_ptr) const { return get() != u_ptr.get(); }
 
     T &operator[](const std::size_t index) { return pointer[index]; }
 };
