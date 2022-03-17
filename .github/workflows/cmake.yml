@@ -13,6 +13,9 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Install gcovr
+      run: sudo apt install -y gcovr
+
     - name: Configure CMake
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
@@ -21,5 +24,5 @@ jobs:
 
     - name: Test
       working-directory: ${{github.workspace}}/build
-      run: ctest
+      run: ctest && gcovr
       
