@@ -3,10 +3,12 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <memory>
 
-template <typename T> class unique_ptr {
+template <typename T, typename D = std::default_delete<T>> class unique_ptr {
   private:
     T *pointer;
+    D deleter;
 
   public:
     unique_ptr()
@@ -18,9 +20,18 @@ template <typename T> class unique_ptr {
     unique_ptr(const unique_ptr &u_ptr) = delete;
 
     unique_ptr(unique_ptr &&u_ptr)
-        : pointer(u_ptr.release()) {}
+        : pointer(u_ptr.release())
+        , deleter(std::forward<D>(u_ptr.get_deleter())) {}
 
-    ~unique_ptr() { delete pointer; }
+    unique_ptr(T *ptr, const D &deleter)
+        : pointer(ptr)
+        , deleter(deleter) {}
+
+    unique_ptr(T *ptr, D &&deleter)
+        : pointer(ptr)
+        , deleter(std::forward<D>(deleter)) {}
+
+    ~unique_ptr() { get_deleter()(pointer); }
 
     T *release() {
         T *tmp = get();
@@ -29,7 +40,7 @@ template <typename T> class unique_ptr {
     }
 
     void reset(T *ptr = nullptr) {
-        delete pointer;
+        get_deleter()(pointer);
         pointer = ptr;
     }
 
@@ -37,12 +48,17 @@ template <typename T> class unique_ptr {
 
     T *get() const { return pointer; }
 
+    D &get_deleter() { return deleter; }
+
+    const D &get_deleter() const { return deleter; }
+
     operator bool() const { return get() != nullptr; }
 
     unique_ptr &operator=(const unique_ptr &u_ptr) = delete;
 
     unique_ptr &operator=(unique_ptr &&u_ptr) {
         reset(u_ptr.release());
+        get_deleter() = std::move(u_ptr.get_deleter());
         return *this;
     }
 
@@ -55,9 +71,10 @@ template <typename T> class unique_ptr {
     T *operator->() { return get(); }
 };
 
-template <typename T> class unique_ptr<T[]> {
+template <typename T, typename D> class unique_ptr<T[], D> {
   private:
     T *pointer;
+    D deleter;
 
   public:
     unique_ptr()
@@ -69,9 +86,19 @@ template <typename T> class unique_ptr<T[]> {
     unique_ptr(const unique_ptr &u_ptr) = delete;
 
     unique_ptr(unique_ptr &&u_ptr)
-        : pointer(u_ptr.release()) {}
+        : pointer(u_ptr.release())
+        , deleter(std::forward<D>(u_ptr.get_deleter())) {}
 
-    ~unique_ptr() { delete[] pointer; }
+    unique_ptr(T *ptr, const D &deleter)
+        : pointer(ptr)
+        , deleter(deleter) {}
+
+    unique_ptr(T *ptr, D &&deleter)
+        : pointer(ptr)
+        , deleter(std::forward<D>(deleter)) {}
+
+
+    ~unique_ptr() { get_deleter()(pointer); }
 
     T *release() {
         T *tmp = get();
@@ -80,7 +107,7 @@ template <typename T> class unique_ptr<T[]> {
     }
 
     void reset(T *ptr = nullptr) {
-        delete[] pointer;
+        get_deleter()(pointer);
         pointer = ptr;
     }
 
@@ -88,12 +115,17 @@ template <typename T> class unique_ptr<T[]> {
 
     T *get() const { return pointer; }
 
+    D &get_deleter() { return deleter; }
+
+    const D &get_deleter() const { return deleter; }
+
     operator bool() const { return get() != nullptr; }
 
     unique_ptr &operator=(const unique_ptr &u_ptr) = delete;
 
     unique_ptr &operator=(unique_ptr &&u_ptr) {
         reset(u_ptr.release());
+        get_deleter() = std::move(u_ptr.get_deleter());
         return *this;
     }
 
