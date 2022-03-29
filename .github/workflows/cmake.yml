@@ -22,7 +22,11 @@ jobs:
     - name: Build
       run: cmake --build ${{github.workspace}}/build
 
-    - name: Test
+    - name: Run tests
       working-directory: ${{github.workspace}}/build
-      run: ctest && gcovr
+      run: ctest
+
+    - name: Code coverage Report
+      run: gcovr -r ${{github.workspace}} -p -d
+      
       
