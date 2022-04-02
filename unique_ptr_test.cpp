@@ -57,7 +57,7 @@ TEST(PrimaryTemplateTest, BoolConversion) {
     ASSERT_TRUE(u_ptr2);
 }
 
-TEST(PrimaryTemplateTest, StarOperator) {
+TEST(PrimaryTemplateTest, DereferenceOperator) {
     unique_ptr<int> u_ptr(new int(10));
     ASSERT_EQ(*u_ptr, 10);
 }
@@ -66,6 +66,17 @@ TEST(PrimaryTemplateTest, EqualOperator) {
     unique_ptr<int> u_ptr1;
     unique_ptr<int> u_ptr2(new int);
     ASSERT_NE(u_ptr1, u_ptr2);
+}
+
+TEST(PrimaryTemplateTest, StreamOperator) {
+    unique_ptr<int> u_ptr(new int(10));
+    testing::internal::CaptureStdout();
+    std::cout << u_ptr;
+    std::string out1 = testing::internal::GetCapturedStdout();
+    testing::internal::CaptureStdout();
+    std::cout << u_ptr.get();
+    std::string out2 = testing::internal::GetCapturedStdout();
+    ASSERT_EQ(out1, out2);
 }
 
 TEST(SpecializationForArrays, Constructor) {
@@ -131,4 +142,15 @@ TEST(SpecializationForArrays, EqualOperator) {
     unique_ptr<int[]> u_ptr1;
     unique_ptr<int[]> u_ptr2(new int[10]);
     ASSERT_NE(u_ptr1, u_ptr2);
+}
+
+TEST(SpecializationForArrays, StreamOperator) {
+    unique_ptr<int[]> u_ptr(new int[10]);
+    testing::internal::CaptureStdout();
+    std::cout << u_ptr;
+    std::string out1 = testing::internal::GetCapturedStdout();
+    testing::internal::CaptureStdout();
+    std::cout << u_ptr.get();
+    std::string out2 = testing::internal::GetCapturedStdout();
+    ASSERT_EQ(out1, out2);
 }
