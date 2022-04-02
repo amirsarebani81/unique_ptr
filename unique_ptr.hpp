@@ -3,12 +3,17 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <iostream>
 #include <memory>
 
 template <typename T, typename D = std::default_delete<T>> class unique_ptr {
   private:
     T *pointer;
     D deleter;
+    friend std::ostream &operator<<(std::ostream &os, const unique_ptr &up) {
+        os << up.get();
+        return os;
+    }
 
   public:
     unique_ptr()
@@ -75,6 +80,10 @@ template <typename T, typename D> class unique_ptr<T[], D> {
   private:
     T *pointer;
     D deleter;
+    friend std::ostream& operator<<(std::ostream& os, const unique_ptr<T[], D>& up) {
+        os << up.get();
+        return os;
+    }
 
   public:
     unique_ptr()
@@ -96,7 +105,6 @@ template <typename T, typename D> class unique_ptr<T[], D> {
     unique_ptr(T *ptr, D &&deleter)
         : pointer(ptr)
         , deleter(std::forward<D>(deleter)) {}
-
 
     ~unique_ptr() { get_deleter()(pointer); }
 
